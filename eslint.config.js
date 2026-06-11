@@ -18,5 +18,9 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // a few modules intentionally pair a component with a tiny helper (e.g. fireConfetti)
+      'react-refresh/only-export-components': ['error', { allowExportNames: ['fireConfetti', 'syncHeatmapLayer'] }],
+    },
   },
 ])

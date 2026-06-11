@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+# Pulse ⚡
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Nightlife discovery and social analytics for NYC — a React PWA that feels like a native app.
+Deep blacks, electric blues, cyan accents. Spotify × Strava × a NYC nightclub.
 
-Currently, two official plugins are available:
+## Quick start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app runs fully in **demo mode** out of the box — seed venues, friends, check-ins, and a
+stylized map — no backend or API keys required.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Optional integrations
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Copy `.env.example` to `.env` and fill in:
+
+| Variable | Effect |
+| --- | --- |
+| `VITE_MAPBOX_TOKEN` | Real Mapbox GL dark map with live heatmap layer on the Tonight tab |
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | Live Supabase backend: auth, check-ins, ratings, realtime map updates |
+
+### Supabase setup
+
+Run the migrations in `supabase/migrations/` in order (SQL editor or `supabase db push`):
+
+1. `0001_schema.sql` — tables (users, friendships, venues, checkins, ratings, user_badges, groups)
+2. `0002_rls.sql` — Row Level Security for friend-graph privacy
+3. `0003_seed_venues.sql` — 15 real NYC venues
+
+## Stack
+
+React 18 · Vite · TypeScript (strict) · Tailwind CSS · Framer Motion · React Router v6 ·
+Zustand · TanStack Query · Mapbox GL JS · Recharts · Supabase · vite-plugin-pwa
+
+## Structure
+
+- `src/pages/` — Tonight (live map), Explore (venue feed), Social (leaderboards + badges), Profile (analytics + Wrapped share card), Rate (swipe flow), Onboarding
+- `src/components/` — layout shell (phone frame on desktop), map, shared UI
+- `src/hooks/` — all data fetching (TanStack Query, optimistic updates)
+- `src/store/` — Zustand stores (auth, map, group night)
+
+## PWA
+
+`npm run build` generates a service worker and manifest. On mobile, "Add to Home Screen"
+installs Pulse as a standalone portrait app.
