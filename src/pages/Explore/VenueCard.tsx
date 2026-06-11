@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion'
-import { Avatar } from '@/components/ui/Avatar'
-import { SEED_USERS } from '@/lib/seedData'
 import type { Venue } from '@/types'
 
 const GRADIENTS: Record<string, string> = {
@@ -18,7 +16,6 @@ interface VenueCardProps {
 
 export function VenueCard({ venue, onSelect }: VenueCardProps) {
   const gradient = venue.vibeTags.map((t) => GRADIENTS[t]).find(Boolean) ?? FALLBACK_GRADIENT
-  const friends = SEED_USERS.slice(0, 2)
 
   return (
     <motion.button
@@ -27,34 +24,33 @@ export function VenueCard({ venue, onSelect }: VenueCardProps) {
       onClick={() => onSelect(venue.id)}
       whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="glass w-full overflow-hidden text-left"
+      className="w-full overflow-hidden text-left card"
       variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
     >
-      <div className="relative h-[160px] w-full" style={{ background: gradient }}>
+      {/* Header with gradient and venue name overlaid */}
+      <div className="relative h-[200px] w-full" style={{ background: gradient }}>
+        {/* Match score badge top-right */}
         <span className="pill pill-active absolute right-3 top-3">{venue.matchScore}% match</span>
+        {/* Venue name overlaid at bottom with gradient */}
+        <div
+          className="absolute inset-x-0 bottom-0 px-4 pb-3 pt-8"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)' }}
+        >
+          <h3 className="font-display text-[19px] font-bold text-white leading-tight">{venue.name}</h3>
+        </div>
       </div>
-      <div className="p-4">
-        <h3 className="font-display text-[17px] font-medium text-text-1">{venue.name}</h3>
-        <p className="mt-0.5 text-[13px] text-text-2">
-          {venue.neighborhood} · {venue.distanceMi} mi
+
+      {/* Below header: metadata */}
+      <div className="px-4 py-3">
+        <p className="text-[13px] text-text-2">
+          {venue.neighborhood} · {venue.distanceMi} mi · <span className="font-mono text-cyan">{venue.rating.toFixed(1)}</span>
         </p>
-        <div className="mt-2.5 flex gap-1.5">
+        <div className="mt-2 flex gap-1.5">
           {venue.vibeTags.slice(0, 3).map((tag) => (
             <span key={tag} className="pill">
               {tag}
             </span>
           ))}
-        </div>
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-2">
-              {friends.map((u) => (
-                <Avatar key={u.id} src={u.avatarUrl} alt={u.username} size={22} />
-              ))}
-            </div>
-            <span className="text-[11px] text-text-2">+ 2 others have been here</span>
-          </div>
-          <span className="font-mono text-sm font-medium text-cyan">{venue.rating.toFixed(1)}</span>
         </div>
       </div>
     </motion.button>

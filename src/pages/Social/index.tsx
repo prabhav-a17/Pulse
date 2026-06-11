@@ -19,7 +19,8 @@ export default function Social() {
     <div className="flex h-full flex-col overflow-hidden px-4 pt-5">
       <h1 className="font-display text-2xl font-semibold text-text-1">Social</h1>
 
-      <div className="mt-4 flex gap-1 rounded-full bg-surface p-1" role="tablist">
+      {/* Underline-style tab switcher */}
+      <div className="mt-4 flex border-b border-[rgba(255,255,255,0.07)]" role="tablist">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -27,18 +28,18 @@ export default function Social() {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`relative flex-1 rounded-full py-2 text-[13px] font-medium ${
-              tab === t.id ? 'text-white' : 'text-text-3'
+            className={`relative mr-6 pb-3 text-[13px] font-medium ${
+              tab === t.id ? 'text-text-1' : 'text-text-3'
             }`}
           >
+            {t.label}
             {tab === t.id && (
               <motion.span
-                layoutId="tab-indicator"
-                className="absolute inset-0 rounded-full gradient-blue glow-blue"
+                layoutId="tab-underline"
+                className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-cyan"
                 transition={{ type: 'spring', stiffness: 400, damping: 35 }}
               />
             )}
-            <span className="relative">{t.label}</span>
           </button>
         ))}
       </div>

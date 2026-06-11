@@ -16,14 +16,6 @@ const FILTERS: { id: MapFilter; label: string }[] = [
   { id: 'hot', label: '🔥' },
 ]
 
-function greeting(): string {
-  const h = new Date().getHours()
-  if (h < 5) return 'Still going'
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
-}
-
 export default function Tonight() {
   const user = useAuthStore((s) => s.user)
   const { filter, setFilter, activeVenueId, setActiveVenue } = useMapStore()
@@ -70,41 +62,49 @@ export default function Tonight() {
         <PulseMap venues={visibleVenues} liveFriends={liveFriends} />
       )}
 
-      <header className="absolute inset-x-3 top-3 z-30 glass flex items-center justify-between px-4 py-3">
-        <span className="font-display text-lg font-semibold text-gradient-cyan">Pulse</span>
-        <div className="flex gap-1.5">
-          {FILTERS.map((f) => (
-            <Pill key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)} aria-label={`Filter: ${f.label}`}>
-              {f.label}
-            </Pill>
-          ))}
+      {/* Top overlay: glass pill with Pulse + filter chips */}
+      <header className="absolute inset-x-4 top-4 z-30 flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 rounded-full px-4 py-2.5 backdrop-blur-xl"
+          style={{ background: 'rgba(9,9,15,0.80)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <span className="font-display text-base font-semibold text-gradient-cyan">Pulse</span>
+          <div className="flex gap-1.5">
+            {FILTERS.map((f) => (
+              <Pill key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)} aria-label={`Filter: ${f.label}`}>
+                {f.label}
+              </Pill>
+            ))}
+          </div>
         </div>
       </header>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className="absolute left-5 top-[72px] z-20 text-sm text-text-2"
-      >
-        {greeting()}, <span className="text-text-1">{user.username}</span>
-      </motion.p>
-
-      <button
+      {/* Bottom card: bigger with better typography */}
+      <motion.button
         type="button"
         aria-label="See who's out tonight"
-        className="glass absolute inset-x-3 bottom-[84px] z-20 flex h-[72px] items-center justify-between px-5 text-left"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="absolute inset-x-3 bottom-[84px] z-20 flex h-[140px] flex-col justify-between rounded-[20px] px-5 py-4 text-left backdrop-blur-xl"
+        style={{ background: 'rgba(9,9,15,0.88)', border: '1px solid rgba(255,255,255,0.07)' }}
       >
-        <div>
-          <p className="text-sm font-medium text-text-1">
-            <span className="font-mono text-cyan">{friendsOut}</span> friends out tonight
-          </p>
-          <p className="mt-0.5 text-xs text-text-2">
-            <span className="font-mono text-cyan">{atYourVibe}</span> at venues you'd like
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="font-display text-2xl font-semibold text-text-1">
+              <span className="font-mono text-cyan">{friendsOut}</span>
+              <span className="ml-2 text-lg text-text-2">friends out</span>
+            </p>
+            <p className="mt-1 text-sm text-text-2">
+              <span className="font-mono text-cyan">{atYourVibe}</span> at venues you'd like
+            </p>
+          </div>
+          <span className="flex h-2.5 w-2.5 rounded-full bg-green glow-green mt-1" aria-label="Live" />
         </div>
-        <span className="flex h-2.5 w-2.5 rounded-full bg-green glow-green" aria-label="Live" />
-      </button>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-text-3">{visibleVenues.length} venues showing</span>
+        </div>
+      </motion.button>
 
       <VenueSheet venue={activeVenue} liveFriends={liveFriends} onClose={() => setActiveVenue(null)} />
     </div>

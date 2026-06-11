@@ -16,11 +16,11 @@ function StatCard({ label, value, decimals = 0 }: { label: string; value: number
     <GlassCard className="p-4 transition-shadow hover:glow-blue">
       <p
         ref={ref as React.RefObject<HTMLParagraphElement>}
-        className="font-mono text-[28px] font-semibold text-cyan"
+        className="font-mono text-[36px] font-semibold text-cyan"
       >
         {animated.toFixed(decimals)}
       </p>
-      <p className="mt-1 font-mono text-xs uppercase tracking-wider text-text-2">{label}</p>
+      <p className="mt-1 text-[11px] uppercase tracking-widest text-text-3">{label}</p>
     </GlassCard>
   )
 }
@@ -39,7 +39,7 @@ export default function Profile() {
     if (!wrappedRef.current || sharing) return
     setSharing(true)
     try {
-      const canvas = await html2canvas(wrappedRef.current, { backgroundColor: '#07070F' })
+      const canvas = await html2canvas(wrappedRef.current, { backgroundColor: '#09090F' })
       const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/png'))
       if (!blob) return
       const file = new File([blob], 'pulse-wrapped.png', { type: 'image/png' })
@@ -60,16 +60,18 @@ export default function Profile() {
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-28 pt-8">
+      {/* Header */}
       <div className="flex flex-col items-center text-center">
-        <Avatar src={user.avatarUrl} alt={user.username} size={72} ring />
-        <h1 className="mt-3 font-display text-xl font-semibold text-text-1">@{user.username}</h1>
-        <p className="mt-1 text-sm font-medium text-gradient-cyan">{identity}</p>
+        <Avatar src={user.avatarUrl} alt={user.username} size={80} ring />
+        <h1 className="mt-4 font-display text-[24px] font-semibold text-text-1">@{user.username}</h1>
+        <p className="mt-1 text-sm font-medium text-cyan">{identity}</p>
         <p className="mt-2 text-xs text-text-2">
           <span className="font-mono text-cyan">{stats.friendsCount}</span> friends ·{' '}
           <span className="font-mono text-cyan">{stats.totalNights}</span> nights
         </p>
       </div>
 
+      {/* Stats 2x2 grid */}
       <div className="mt-6 grid grid-cols-2 gap-3">
         <StatCard label="Nights out" value={stats.totalNights} />
         <StatCard label="Unique venues" value={stats.uniqueVenues} />
@@ -78,17 +80,17 @@ export default function Profile() {
       </div>
 
       <GlassCard className="mt-5 overflow-x-auto p-4">
-        <h2 className="mb-3 text-sm font-medium text-text-1">Activity</h2>
+        <h2 className="mb-3 text-[11px] uppercase tracking-widest text-text-3">Activity</h2>
         <ActivityHeatmap activityByDay={stats.activityByDay} />
       </GlassCard>
 
       <GlassCard className="mt-5 p-4">
-        <h2 className="mb-1 text-sm font-medium text-text-1">Vibe breakdown</h2>
+        <h2 className="mb-1 text-[11px] uppercase tracking-widest text-text-3">Vibe breakdown</h2>
         <VibeChart data={stats.vibeBreakdown} />
       </GlassCard>
 
       <GlassCard className="mt-5 p-4">
-        <h2 className="mb-3 text-sm font-medium text-text-1">Top venues</h2>
+        <h2 className="mb-3 text-[11px] uppercase tracking-widest text-text-3">Top venues</h2>
         <ul className="space-y-3">
           {stats.topVenueIds.map((id, i) => {
             const venue = findVenue(id)

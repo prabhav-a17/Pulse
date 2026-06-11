@@ -27,20 +27,20 @@ const Row = memo(function Row({ entry, max }: { entry: RowEntry; max: number }) 
       layout
       layoutId={entry.user.id}
       transition={{ type: 'spring', stiffness: 500, damping: 50 }}
-      className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${
+      className={`flex items-center gap-4 rounded-2xl px-3 py-3 ${
         entry.isYou
           ? 'border border-[rgba(0,212,255,0.2)] bg-[rgba(0,100,255,0.08)]'
           : ''
       }`}
     >
-      <span className="w-6 text-center">
+      <span className="w-7 text-center">
         {entry.rank <= 3 ? (
           <Crown size={16} color={CROWN_COLORS[entry.rank - 1]} fill={CROWN_COLORS[entry.rank - 1]} />
         ) : (
-          <span className="font-mono text-xs text-text-3">{entry.rank}</span>
+          <span className="font-mono text-sm font-bold text-text-3">{entry.rank}</span>
         )}
       </span>
-      <Avatar src={entry.user.avatarUrl} alt={entry.user.username} size={38} ring={entry.rank <= 3} />
+      <Avatar src={entry.user.avatarUrl} alt={entry.user.username} size={42} ring={entry.rank <= 3} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-text-1">
           {entry.isYou ? 'You' : entry.user.username}
@@ -68,7 +68,7 @@ export function FriendsBoard() {
 
   return (
     <div>
-      <div className="flex gap-4 border-b border-[rgba(0,150,255,0.1)] px-1">
+      <div className="flex gap-4 border-b border-[rgba(255,255,255,0.07)] px-1">
         {METRICS.map((m) => (
           <button
             key={m.id}
@@ -100,7 +100,7 @@ export function FriendsBoard() {
       {isLoading ? (
         <div className="mt-4 space-y-3">
           {[0, 1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-14 w-full" />
+            <Skeleton key={i} className="h-16 w-full" />
           ))}
         </div>
       ) : (

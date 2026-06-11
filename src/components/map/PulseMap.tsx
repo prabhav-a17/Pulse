@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
-import { MAPBOX_STYLE, MAPBOX_TOKEN, NYC_CENTER, NYC_ZOOM } from '@/lib/mapbox'
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
+import { GOOGLE_MAPS_KEY, MAP_STYLES, NYC_CENTER, NYC_ZOOM } from '@/lib/maps'
 import { findUser } from '@/lib/seedData'
 import { useMapStore } from '@/store/useMapStore'
-import { HeatBlob, syncHeatmapLayer } from './HeatmapLayer'
+import { HeatBlob } from './HeatmapLayer'
 import { FriendPin } from './FriendPins'
 import { VenueMarker } from './VenueMarker'
 import type { Venue } from '@/types'
@@ -14,32 +13,34 @@ interface PulseMapProps {
   liveFriends: { userId: string; venueId: string }[]
 }
 
-/** Real Mapbox map when a token is configured, stylized projection otherwise. */
+/** Real Google Map when an API key is configured, stylized fallback otherwise. */
 export function PulseMap({ venues, liveFriends }: PulseMapProps) {
-  if (MAPBOX_TOKEN) return <RealMap venues={venues} liveFriends={liveFriends} />
+  if (GOOGLE_MAPS_KEY) return <RealMap venues={venues} liveFriends={liveFriends} />
   return <FallbackMap venues={venues} liveFriends={liveFriends} />
 }
 
 function RealMap({ venues, liveFriends }: PulseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<mapboxgl.Map | null>(null)
+  const mapRef = useRef<google.maps.Map | null>(null)
   const [loaded, setLoaded] = useState(false)
   const setActiveVenue = useMapStore((s) => s.setActiveVenue)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    mapboxgl.accessToken = MAPBOX_TOKEN
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: MAPBOX_STYLE,
-      center: NYC_CENTER,
-      zoom: NYC_ZOOM,
-      attributionControl: false,
+    setOptions({ key: GOOGLE_MAPS_KEY })
+    importLibrary('maps').then(() => {
+      if (!containerRef.current) return
+      const map = new google.maps.Map(containerRef.current, {
+        center: NYC_CENTER,
+        zoom: NYC_ZOOM,
+        styles: MAP_STYLES,
+        disableDefaultUI: true,
+        clickableIcons: false,
+      })
+      mapRef.current = map
+      setLoaded(true)
     })
-    map.on('load', () => setLoaded(true))
-    mapRef.current = map
     return () => {
-      map.remove()
       mapRef.current = null
     }
   }, [])
@@ -47,36 +48,47 @@ function RealMap({ venues, liveFriends }: PulseMapProps) {
   useEffect(() => {
     const map = mapRef.current
     if (!map || !loaded) return
-    syncHeatmapLayer(map, venues)
 
     const hottestId = [...venues].sort((a, b) => b.crowdScore - a.crowdScore)[0]?.id
-    const markers: mapboxgl.Marker[] = []
+    const markers: google.maps.Marker[] = []
 
     for (const venue of venues) {
-      const el = document.createElement('button')
-      el.setAttribute('aria-label', `Open ${venue.name}`)
       const size = 8 + (venue.crowdScore / 100) * 10
-      el.style.cssText = `width:${size}px;height:${size}px;border-radius:999px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6);border:none;cursor:pointer`
-      if (venue.id === hottestId) el.classList.add('pulse-ring')
-      el.onclick = () => setActiveVenue(venue.id)
-      markers.push(new mapboxgl.Marker(el).setLngLat([venue.lng, venue.lat]).addTo(map))
+      const isHottest = venue.id === hottestId
+      const marker = new google.maps.Marker({
+        position: { lat: venue.lat, lng: venue.lng },
+        map,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="${isHottest ? '#00D4FF' : 'white'}" opacity="0.9"/></svg>`
+          ),
+          scaledSize: new google.maps.Size(size, size),
+          anchor: new google.maps.Point(size / 2, size / 2),
+        },
+        title: venue.name,
+      })
+      marker.addListener('click', () => setActiveVenue(venue.id))
+      markers.push(marker)
     }
 
     for (const fc of liveFriends) {
       const user = findUser(fc.userId)
       const venue = venues.find((v) => v.id === fc.venueId)
       if (!user || !venue) continue
-      const el = document.createElement('img')
-      el.src = user.avatarUrl
-      el.alt = `${user.username} is here`
-      el.style.cssText =
-        'width:30px;height:30px;border-radius:999px;border:2px solid #00D4FF;box-shadow:0 0 12px rgba(0,212,255,.5);background:#12122A'
-      markers.push(
-        new mapboxgl.Marker(el).setLngLat([venue.lng + 0.0012, venue.lat + 0.0012]).addTo(map),
-      )
+      const imgMarker = new google.maps.Marker({
+        position: { lat: venue.lat + 0.0012, lng: venue.lng + 0.0012 },
+        map,
+        icon: {
+          url: user.avatarUrl,
+          scaledSize: new google.maps.Size(30, 30),
+          anchor: new google.maps.Point(15, 15),
+        },
+        title: `${user.username} is here`,
+      })
+      markers.push(imgMarker)
     }
 
-    return () => markers.forEach((m) => m.remove())
+    return () => markers.forEach((m) => m.setMap(null))
   }, [venues, liveFriends, loaded, setActiveVenue])
 
   return <div ref={containerRef} className="h-full w-full" aria-label="Live venue map" />
@@ -119,7 +131,6 @@ function FallbackMap({ venues, liveFriends }: PulseMapProps) {
         backgroundSize: '36px 36px',
       }}
     >
-      {/* stylized East River divider */}
       <div
         aria-hidden="true"
         className="absolute inset-y-0 left-[46%] w-[10%] -skew-x-12 bg-[rgba(0,100,255,0.06)]"

@@ -39,16 +39,16 @@ export function BadgesGrid() {
   if (isError) return <p className="mt-8 text-center text-sm text-text-2">Badges unavailable.</p>
   if (isLoading)
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-5">
         {Array.from({ length: 9 }, (_, i) => (
-          <Skeleton key={i} className="h-24 w-full" />
+          <Skeleton key={i} className="h-28 w-full" />
         ))}
       </div>
     )
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-4" role="list" aria-label="Badges">
+      <div className="grid grid-cols-3 gap-5" role="list" aria-label="Badges">
         {(badges ?? []).map((badge) => {
           const Icon = ICONS[badge.def.type]
           return (
@@ -61,13 +61,13 @@ export function BadgesGrid() {
               className="flex flex-col items-center gap-2"
             >
               <span
-                className={`relative flex h-16 w-16 items-center justify-center rounded-full ${
+                className={`relative flex h-[72px] w-[72px] items-center justify-center rounded-full ${
                   badge.unlocked
                     ? 'gradient-blue glow-blue'
                     : 'bg-surface opacity-40 grayscale'
                 }`}
               >
-                <Icon size={26} color={badge.unlocked ? '#fff' : '#475569'} />
+                <Icon size={28} color={badge.unlocked ? '#fff' : '#475569'} />
                 {!badge.unlocked && (
                   <Lock size={13} color="#94A3B8" className="absolute -bottom-0.5 -right-0.5" />
                 )}
@@ -78,7 +78,6 @@ export function BadgesGrid() {
         })}
       </div>
 
-      {/* unlocked badge: modal */}
       <AnimatePresence>
         {selected?.unlocked && (
           <motion.div
@@ -122,7 +121,6 @@ export function BadgesGrid() {
         )}
       </AnimatePresence>
 
-      {/* locked badge: bottom sheet with progress */}
       <BottomSheet
         open={selected !== null && !selected.unlocked}
         onClose={() => setSelected(null)}

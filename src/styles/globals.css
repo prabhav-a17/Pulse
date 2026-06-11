@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #07070F;
+  --bg-base: #09090F;
   --bg-surface: #0D0D1A;
   --bg-elevated: #12122A;
   --bg-overlay: rgba(0, 100, 255, 0.04);
@@ -38,7 +38,8 @@
   }
 
   body {
-    @apply bg-base font-body text-text-1 antialiased;
+    background: #09090F;
+    @apply font-body text-text-1 antialiased;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
   }
@@ -54,6 +55,17 @@
   }
   .glass:hover {
     border-color: rgba(0, 200, 255, 0.22);
+  }
+
+  .card {
+    background: #0F0F1E;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .card-elevated {
+    background: #141428;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.07);
   }
 
   .glow-blue {
@@ -73,7 +85,7 @@
     background: linear-gradient(135deg, #0066FF, #00D4FF);
   }
   .gradient-deep {
-    background: linear-gradient(180deg, #0D0D1A 0%, #07070F 100%);
+    background: linear-gradient(180deg, #0D0D1A 0%, #09090F 100%);
   }
   .text-gradient-cyan {
     background: linear-gradient(90deg, #0066FF, #00D4FF);
@@ -110,19 +122,10 @@
   }
 }
 
-@keyframes fab-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-.fab-pulse {
-  animation: fab-pulse 2.4s ease-in-out infinite;
-}
-
 @keyframes onboarding-bg {
-  0% { background-color: #07070F; }
+  0% { background-color: #09090F; }
   50% { background-color: #0A0A1F; }
-  100% { background-color: #07070F; }
+  100% { background-color: #09090F; }
 }
 .onboarding-bg {
   animation: onboarding-bg 8s ease-in-out infinite;
@@ -134,9 +137,4 @@
 }
 .pulse-ring {
   animation: pulse-ring 2s ease-out infinite;
-}
-
-.mapboxgl-ctrl-logo,
-.mapboxgl-ctrl-attrib {
-  opacity: 0.35;
 }
