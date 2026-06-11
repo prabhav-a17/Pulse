@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader'
+import { Loader } from '@googlemaps/js-api-loader'
 import { GOOGLE_MAPS_KEY, MAP_STYLES, NYC_CENTER, NYC_ZOOM } from '@/lib/maps'
 import { findUser } from '@/lib/seedData'
 import { useMapStore } from '@/store/useMapStore'
@@ -23,14 +23,15 @@ function RealMap({ venues, liveFriends }: PulseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<google.maps.Map | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
   const setActiveVenue = useMapStore((s) => s.setActiveVenue)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    setOptions({ key: GOOGLE_MAPS_KEY })
-    importLibrary('maps').then(() => {
+    const loader = new Loader({ apiKey: GOOGLE_MAPS_KEY, version: 'weekly' })
+    loader.importLibrary('maps').then(({ Map }) => {
       if (!containerRef.current) return
-      const map = new google.maps.Map(containerRef.current, {
+      const map = new Map(containerRef.current, {
         center: NYC_CENTER,
         zoom: NYC_ZOOM,
         styles: MAP_STYLES,
@@ -39,7 +40,7 @@ function RealMap({ venues, liveFriends }: PulseMapProps) {
       })
       mapRef.current = map
       setLoaded(true)
-    })
+    }).catch(() => setError(true))
     return () => {
       mapRef.current = null
     }
@@ -91,6 +92,7 @@ function RealMap({ venues, liveFriends }: PulseMapProps) {
     return () => markers.forEach((m) => m.setMap(null))
   }, [venues, liveFriends, loaded, setActiveVenue])
 
+  if (error) return <FallbackMap venues={venues} liveFriends={liveFriends} />
   return <div ref={containerRef} className="h-full w-full" aria-label="Live venue map" />
 }
 
